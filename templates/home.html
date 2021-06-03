@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{%block title%}
+Home View
+{% endblock title%}
+{% block link %}
+<link rel="stylesheet" href="{% static 'home.css' %}">
+{% endblock link %}
+
+{% block content %}
+  <form action="/deadacount/" method="post">
+    {% csrf_token %}
+    <div>
+      <p class="get_your_follower">@以降のあなたのTwitterIDを入力してください。</p>
+      <textarea id="username" name="username" placeholder="twitter_id"></textarea>
+    </div>
+    <input type="submit" value="送信">
+  </form>
+{% endblock content %}

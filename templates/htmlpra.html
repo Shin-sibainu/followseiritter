@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block link %}
+<link rel="stylesheet" href="{% static 'htmlpra.css' %}">
+{% endblock link %}
+
+{% block content %}
+<!--ここからhtml練習-->
+  <div class="parent">
+    <div class="child1">
+      <h2>死んでるアカウント</h2>
+      <div id="twitter_info_box">
+        <img src="../static/admin/img/icon-alert.svg" id="twitter_img">
+        <div class="user_info">
+          <p id="username">zyubu</p>
+          <a href="#">https://twitter.com.juvenile_1225</a>
+        </div>
+      </div>
+      <div id="twitter_info_box">
+        <p id="username">zyubu</p>
+        <a href="#">https://twitter.com.juvenile_1225</a>
+      </div>
+    </div>
+    <div class="child2">
+      <h2>生きてるアカウント</h2>
+      <div id="twitter_info_box">
+        <p id="username">zyubu</p>
+        <a href="#">https://twitter.com.juvenile_1225</a>
+      </div>
+      <div id="twitter_info_box">
+        <p id="username">zyubu</p>
+        <a href="#">https://twitter.com.juvenile_1225</a>
+      </div>
+    </div>      
+    </div>
+
+
+{% endblock content %}

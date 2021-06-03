@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+{% for follower_name in followers_list %}
+<p>{{follower_name}}</p>
+{% endfor %}
+
+<a href="{% url 'home'%}">戻る</a>
+{% endblock content %}

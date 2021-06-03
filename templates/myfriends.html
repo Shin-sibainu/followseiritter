@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+{% for friend_name in friends_list %}
+<p>{{friend_name}}</p>
+{% endfor %}
+
+<a href="{% url 'home'%}">戻る</a>
+{% endblock content %}

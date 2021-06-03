@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title%}{% endblock title%}</title>
+  <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'base.css' %}">
+  {% block link %}
+  {% endblock link %}
+</head>
+<body>
+  <div class="wrapper">
+    <h1>フォロー整理ったー<i class="fab fa-twitter"></i></h1>
+    <p id="description">6カ月以上息してないアカウントを探してフォローを整理しよう！</p>
+  {% block content %}
+  {% endblock content %}
+  </div>
+</body>
+</html>
