@@ -10,10 +10,11 @@ access_token_secret = 'rxEokEDi2ZrjRu0JPMt1rXDqiAc1zCsPomTVUFqcZO315'
   
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
-api = tweepy.API(auth)
+api = tweepy.API(auth, wait_on_rate_limit=True)
 
-friends_search_count = 200
-deadacount_definision = 30
+#friends_search_count = 200
+friends_ids_search_count = 500
+deadacount_definision = 60
 
 def homeView(request):
   print(request)
@@ -66,13 +67,15 @@ def followersView(request):
 def deadacountView(request): 
   if request.method == 'POST':
     username = request.POST['username']
-    userObj = api.get_user(username)
-    friends = userObj.friends(count=friends_search_count) #countの分だけユーザーオブジェクトを取得する。
+    #userObj = api.get_user(screen_name)
+    #friends = userObj.friends(count=friends_search_count) #countの分だけユーザーオブジェクトを取得する。
+    friends_ids = api.friends_ids(screen_name=username, count=friends_ids_search_count) #クライアントがフォローしているユーザーのidをいくつか取得する。
     
     deadacount = []
     aliveacount = []
 
-    for friend in friends: #フォローしているユーザーオブジェクトを1つずつ取り出す。
+    for friend_id in friends_ids: #フォローしているユーザーオブジェクトを1つずつ取り出す。
+      friend = api.get_user(friend_id)
       try:
         friend_statusObj = api.user_timeline(friend.id, count=1)
       except tweepy.TweepError as e:

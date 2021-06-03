@@ -10,6 +10,7 @@
     <div class="child1">
       <h2>息してない</h2>
       {% for deadacount in deadacount_list %}
+      {% if deadacount.protected == False %} 
       <div id="twitter_info_box">
         <img src="{{deadacount.profile_image_url_https}}" id="twitter_img">
         <div class="user_info">
@@ -17,6 +18,7 @@
           <a href="{{deadacount.profile_url}}" target="_blank" rel="noopener noreferrer">@{{deadacount.screen_name}}</a>
         </div>
       </div>
+      {% endif %}
       {% endfor %}
     </div>
     <div class="child2">
