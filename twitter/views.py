@@ -3,6 +3,7 @@ import tweepy
 from datetime import datetime, timedelta
 import pprint
 import json
+import time
 
 consumer_key = 'b6iBIHJYu8kEM3RqFISRw4XAW'
 consumer_secret = 'Y7RzFAgmLLKU9KzDzL5OcLjmfHbUI7Alz7drbYk7soJOMySfLt'
@@ -11,14 +12,13 @@ access_token_secret = 'rxEokEDi2ZrjRu0JPMt1rXDqiAc1zCsPomTVUFqcZO315'
   
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
-api = tweepy.API(auth, wait_on_rate_limit=True)
+api = tweepy.API(auth)
 
 #friends_search_count = 200
-friends_ids_search_count = 100
+friends_ids_search_count = 15
 deadacount_definision = 30
 
 def homeView(request):
-  print(request)
   return render(request, 'home.html')
 
 def tweetView(request):
@@ -33,14 +33,13 @@ def tweetView(request):
 
 #自分のフォローしているユーザーを列挙する。
 def myfriendsView(request):
-  friends = api.friends(count=3)#自分がフォローしているUserオブジェクトをリストで保持している。
+  friends = api.friends()#自分がフォローしているUserオブジェクトをリストで保持している。
   
   friends_list = []
   
   for friend in friends:
     friend_name = friend.name #フォローしているユーザー名を1つずつ取得する。
     friends_list.append(friend_name)#リストにフレンドの名前を1つずつ格納する。 
-    print(friends_list)
 
   context = {
     'friends_list': friends_list
