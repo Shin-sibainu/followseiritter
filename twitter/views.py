@@ -2,6 +2,7 @@ from django.shortcuts import render
 import tweepy
 from datetime import datetime, timedelta
 import pprint
+import json
 
 consumer_key = 'b6iBIHJYu8kEM3RqFISRw4XAW'
 consumer_secret = 'Y7RzFAgmLLKU9KzDzL5OcLjmfHbUI7Alz7drbYk7soJOMySfLt'
@@ -13,8 +14,8 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 #friends_search_count = 200
-friends_ids_search_count = 500
-deadacount_definision = 60
+friends_ids_search_count = 100
+deadacount_definision = 30
 
 def homeView(request):
   print(request)
@@ -32,8 +33,10 @@ def tweetView(request):
 
 #自分のフォローしているユーザーを列挙する。
 def myfriendsView(request):
-  friends_list = []
   friends = api.friends(count=3)#自分がフォローしているUserオブジェクトをリストで保持している。
+  
+  friends_list = []
+  
   for friend in friends:
     friend_name = friend.name #フォローしているユーザー名を1つずつ取得する。
     friends_list.append(friend_name)#リストにフレンドの名前を1つずつ格納する。 
@@ -67,17 +70,15 @@ def followersView(request):
 def deadacountView(request): 
   if request.method == 'POST':
     username = request.POST['username']
-    #userObj = api.get_user(screen_name)
-    #friends = userObj.friends(count=friends_search_count) #countの分だけユーザーオブジェクトを取得する。
     friends_ids = api.friends_ids(screen_name=username, count=friends_ids_search_count) #クライアントがフォローしているユーザーのidをいくつか取得する。
     
     deadacount = []
     aliveacount = []
 
-    for friend_id in friends_ids: #フォローしているユーザーオブジェクトを1つずつ取り出す。
-      friend = api.get_user(friend_id)
+    for friend_id in friends_ids: #フォローしているユーザーIDを1つずつ取り出す。
+      friend = api.get_user(friend_id) #取り出したUserIDから1つずつUserオブジェクトを探しにいく。
       try:
-        friend_statusObj = api.user_timeline(friend.id, count=1)
+        friend_statusObj = api.user_timeline(friend.id, count=1) #フォローしてるUserIDのタイムラインの最新投稿（Statusオブジェクト）を取得。
       except tweepy.TweepError as e:
         if e.reason == 'Not authorized.':
           print('鍵垢の人がいました。')
@@ -87,7 +88,7 @@ def deadacountView(request):
       for friend_status in friend_statusObj:
         new_tweet_created_at = friend_status.created_at #各々ユーザーの最新投稿の日時を取得している。
         if datetime.now() - new_tweet_created_at > timedelta(days=deadacount_definision): #最新の投稿が半年間更新されていなかったら。 
-          deadacount.append(friend)
+          deadacount.append(friend) #死んでるUserオブジェクトのリスト
         else:
           aliveacount.append(friend)
 
@@ -95,6 +96,8 @@ def deadacountView(request):
        'deadacount_list': deadacount,
        'aliveacount_list': aliveacount
      }
+    
+    print(len(deadacount)+len(aliveacount))
   return render(request, 'deadacount.html', context)
 
 
