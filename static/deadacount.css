@@ -1,3 +1,11 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  border-radius: 6px;
+  background-color:aliceblue;
+}
+
 .wrapper {
   width: 960px;
   margin: 0 auto;
