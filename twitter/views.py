@@ -15,7 +15,7 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 #friends_search_count = 200
-friends_ids_search_count = 15
+friends_ids_search_count = 1000
 deadacount_definision = 60
 
 def homeView(request):
