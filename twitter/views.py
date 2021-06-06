@@ -15,7 +15,7 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 #friends_search_count = 200
-friends_ids_search_count = 15
+friends_ids_search_count = 5
 deadacount_definision = 30
 
 def homeView(request):
@@ -67,8 +67,8 @@ def followersView(request):
 
 # 死んでるアカウントを表示する関数
 def deadacountView(request): 
-  if request.method == 'POST':
-    username = request.POST['username']
+  if request.method == 'GET':
+    username = request.GET['username']
     friends_ids = api.friends_ids(screen_name=username, count=friends_ids_search_count) #クライアントがフォローしているユーザーのidをいくつか取得する。
     
     deadacount = []
@@ -95,8 +95,6 @@ def deadacountView(request):
        'deadacount_list': deadacount,
        'aliveacount_list': aliveacount
      }
-    
-    print(len(deadacount)+len(aliveacount))
   return render(request, 'deadacount.html', context)
 
 

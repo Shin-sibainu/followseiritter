@@ -9,8 +9,8 @@ Home View
 {% endblock link %}
 
 {% block content %}
-<form id="contact" action="/deadacount/" method="POST">
-  {% csrf_token %}
+<form id="contact" action="{% url 'deadacount' %}" method="GET">
+ 
   <div class="container">
 
     <div class="head">
