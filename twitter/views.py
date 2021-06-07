@@ -15,8 +15,9 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 #friends_search_count = 200
-friends_ids_search_count = 1000
-deadacount_definision = 60
+friends_ids_search_count = 100 
+#friend_obj_count = 1000
+deadacount_definision = 30
 
 def homeView(request):
   return render(request, 'home.html')
@@ -96,6 +97,37 @@ def deadacountView(request):
        'aliveacount_list': aliveacount
      }
   return render(request, 'deadacount.html', context)
+
+
+def deadacountView2(request):
+  if request.method == "GET":
+    screen_name = request.GET["screen_name"]
+    
+    deadacount = []
+    aliveacount = []
+
+    friends_ids = api.friends_ids(screen_name=screen_name, count=friends_ids_search_count)
+    friendsObj = api.lookup_users(user_ids=friends_ids) #最大100まで
+    #-----------------------------------------(遅い)
+    for friendObj in friendsObj:
+    #-----------------------------------------（遅い）
+      try:
+        new_tweet_created = friendObj.status.created_at
+        setattr(friendObj, 'profile_url', 'https://twitter.com/{}'.format(friendObj.screen_name))
+      except AttributeError as ae:
+        print(ae)
+      if datetime.now() - new_tweet_created > timedelta(days=deadacount_definision):
+        deadacount.append(friendObj)
+      else:
+        aliveacount.append(friendObj)  
+    context = {
+      'deadacount_list': deadacount,
+      'aliveacount_list': aliveacount
+    }
+    
+  return render(request, 'deadacount2.html', context)
+
+
 
 
 def htmlpraView(request):
