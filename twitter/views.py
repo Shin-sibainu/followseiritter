@@ -76,7 +76,9 @@ def deadacountView(request):
     aliveacount = []
 
     for friend_id in friends_ids: #フォローしているユーザーIDを1つずつ取り出す。
+      #-----------------------------------------(遅い)
       friend = api.get_user(friend_id) #取り出したUserIDから1つずつUserオブジェクトを探しにいく。
+      #-----------------------------------------（遅い）
       try:
         friend_statusObj = api.user_timeline(friend.id, count=1) #フォローしてるUserIDのタイムラインの最新投稿（Statusオブジェクト）を取得。
       except tweepy.TweepError as e:
@@ -108,9 +110,8 @@ def deadacountView2(request):
 
     friends_ids = api.friends_ids(screen_name=screen_name, count=friends_ids_search_count)
     friendsObj = api.lookup_users(user_ids=friends_ids) #最大100まで
-    #-----------------------------------------(遅い)
+
     for friendObj in friendsObj:
-    #-----------------------------------------（遅い）
       try:
         new_tweet_created = friendObj.status.created_at
         setattr(friendObj, 'profile_url', 'https://twitter.com/{}'.format(friendObj.screen_name))
