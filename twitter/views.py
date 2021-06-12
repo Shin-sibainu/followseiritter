@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 import tweepy
 from datetime import datetime, timedelta
@@ -15,9 +16,9 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 #friends_search_count = 200
-friends_ids_search_count = 100 
+friends_ids_search_count = 10
 #friend_obj_count = 1000
-deadacount_definision = 30
+deadacount_definision = 1
 
 def homeView(request):
   return render(request, 'home.html')
@@ -65,6 +66,9 @@ def followersView(request):
       'followers_list': followers_list
     }
   return render(request, 'followers.html', context)
+
+def htmlpraView(request):
+  return render(request, 'htmlpra.html')
 
 # 死んでるアカウントを表示する関数
 def deadacountView(request): 
@@ -128,8 +132,44 @@ def deadacountView2(request):
     
   return render(request, 'deadacount2.html', context)
 
+#TwitterAPIからscreen_nameの情報をとってくる。
+def GetTwitterApiDataView(request):
+  deadacount = {}
+  aliveacount = {}
+  deadacountlist = []
+  aliveacountlist = []
+
+  friends_ids = api.friends_ids(screen_name='juvenile_1225', count=friends_ids_search_count)
+  friendsObj = api.lookup_users(user_ids=friends_ids) #最大100まで
+
+  for friendObj in friendsObj:
+    try:
+        new_tweet_created = friendObj.status.created_at
+        setattr(friendObj, 'profile_url', 'https://twitter.com/{}'.format(friendObj.screen_name))
+    except AttributeError as ae:
+        print(ae)
+    if datetime.now() - new_tweet_created > timedelta(days=deadacount_definision):
+       #deadacount.append(friendObj.name)
+       try:
+        deadacount['name'] = friendObj.name
+        deadacount['screen_name'] = friendObj.screen_name
+        deadacount['profile_url'] = friendObj.profile_url
+        deadacount['profile_image_url_https'] = friendObj.profile_image_url_https
+        deadacountlist.append(deadacount.copy())
+       except AttributeError as ae:
+         print(ae)
+    else:
+       #aliveacount.append(friendObj) 
+       try:
+        aliveacount['name'] = friendObj.name
+        aliveacount['screen_name'] = friendObj.screen_name
+        aliveacount['profile_url'] = friendObj.profile_url
+        aliveacount['profile_image_url_https'] = friendObj.profile_image_url_https
+        aliveacountlist.append(aliveacount.copy())
+       except AttributeError as ae:
+         print(ae)
+ #name,screen_name,profile_url,profile_image_url_httpsのみのリストが欲しい。
+  return JsonResponse({'deadacount_list':deadacountlist, 'aliveacount_list':aliveacountlist}, safe=False) 
 
 
 
-def htmlpraView(request):
-  return render(request, 'htmlpra.html')
