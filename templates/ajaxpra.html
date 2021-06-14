@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+{% endblock script %}
+
+{% block link %}
+<script src="{% static 'ajaxpra.js' %}"></script>
+{% endblock link %}
+
+
+{% block content %}
+{% csrf_token %}
+<button class="btn btn-primary" id="count-btn">もっと見る</button>
+<div id="count-display">0</div>
+{% endblock content %}

@@ -2,9 +2,9 @@ from django.http import JsonResponse
 from django.shortcuts import render
 import tweepy
 from datetime import datetime, timedelta
-import pprint
+import sys
+from django.http import QueryDict, HttpResponse
 import json
-import time
 
 consumer_key = 'b6iBIHJYu8kEM3RqFISRw4XAW'
 consumer_secret = 'Y7RzFAgmLLKU9KzDzL5OcLjmfHbUI7Alz7drbYk7soJOMySfLt'
@@ -15,9 +15,8 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
-#friends_search_count = 200
 friends_ids_search_count = 10
-#friend_obj_count = 1000
+friends_ids_search_count_click = 30
 deadacount_definision = 1
 
 def homeView(request):
@@ -133,43 +132,94 @@ def deadacountView2(request):
   return render(request, 'deadacount2.html', context)
 
 #TwitterAPIからscreen_nameの情報をとってくる。
-def GetTwitterApiDataView(request):
-  deadacount = {}
-  aliveacount = {}
-  deadacountlist = []
-  aliveacountlist = []
+def getTwitterApiDataView(request):
+  click_count = 0
+  #Ajaxで送られてきた変数を受け取る。
+  if request.method == 'POST':
+    friends_ids_list = []
+    friends_ids_list_10 = []
+    friends_ids_list_20 = []
+    friends_ids_list_30 = []
 
-  friends_ids = api.friends_ids(screen_name='juvenile_1225', count=friends_ids_search_count)
-  friendsObj = api.lookup_users(user_ids=friends_ids) #最大100まで
+    deadacount = {}
+    aliveacount = {}
+    deadacountlist = []
+    aliveacountlist = []
 
-  for friendObj in friendsObj:
-    try:
-        new_tweet_created = friendObj.status.created_at
-        setattr(friendObj, 'profile_url', 'https://twitter.com/{}'.format(friendObj.screen_name))
-    except AttributeError as ae:
-        print(ae)
-    if datetime.now() - new_tweet_created > timedelta(days=deadacount_definision):
-       #deadacount.append(friendObj.name)
-       try:
-        deadacount['name'] = friendObj.name
-        deadacount['screen_name'] = friendObj.screen_name
-        deadacount['profile_url'] = friendObj.profile_url
-        deadacount['profile_image_url_https'] = friendObj.profile_image_url_https
-        deadacountlist.append(deadacount.copy())
-       except AttributeError as ae:
-         print(ae)
-    else:
-       #aliveacount.append(friendObj) 
-       try:
-        aliveacount['name'] = friendObj.name
-        aliveacount['screen_name'] = friendObj.screen_name
-        aliveacount['profile_url'] = friendObj.profile_url
-        aliveacount['profile_image_url_https'] = friendObj.profile_image_url_https
-        aliveacountlist.append(aliveacount.copy())
-       except AttributeError as ae:
-         print(ae)
- #name,screen_name,profile_url,profile_image_url_httpsのみのリストが欲しい。
-  return JsonResponse({'deadacount_list':deadacountlist, 'aliveacount_list':aliveacountlist}, safe=False) 
+    friends_ids = api.friends_ids(screen_name='juvenile_1225', count=friends_ids_search_count_click)
+    #id100件毎のリストを作る。
+    for friend_id in friends_ids:
+      if(len(friends_ids_list_10) <= 10):
+        friends_ids_list_10.append(friend_id )
+      if(len(friends_ids_list_10) >= 11 and len(friends_ids_list_20) < 10):
+        friends_ids_list_20.append(friend_id)
+      if(len(friends_ids_list_20) >= 10):
+        friends_ids_list_30.append(friend_id)
+    friends_ids_list.append(friends_ids_list_10)
+    friends_ids_list.append(friends_ids_list_20)
+    friends_ids_list.append(friends_ids_list_30)
+
+    dic = QueryDict(request.body, encoding='utf-8')
+    click_count = dic.get('clickcount_for_next_list')
+    print(click_count)
+
+    #print(click_count)
+    friendsObj = api.lookup_users(user_ids=friends_ids_list[int(click_count)]) #最大100まで
+
+    for friendObj in friendsObj:
+      try:
+          new_tweet_created = friendObj.status.created_at
+          setattr(friendObj, 'profile_url', 'https://twitter.com/{}'.format(friendObj.screen_name))
+          if datetime.now() - new_tweet_created > timedelta(days=deadacount_definision):
+            try:
+              deadacount['name'] = friendObj.name
+              deadacount['screen_name'] = friendObj.screen_name
+              deadacount['profile_url'] = friendObj.profile_url
+              deadacount['profile_image_url_https'] = friendObj.profile_image_url_https
+              deadacountlist.append(deadacount.copy())
+            except AttributeError as ae:
+              pass
+          else:
+            try:
+              aliveacount['name'] = friendObj.name
+              aliveacount['screen_name'] = friendObj.screen_name
+              aliveacount['profile_url'] = friendObj.profile_url
+              aliveacount['profile_image_url_https'] = friendObj.profile_image_url_https
+              aliveacountlist.append(aliveacount.copy())
+            except AttributeError as ae:
+              pass
+      except AttributeError as ae:
+          pass
+    return JsonResponse({'deadacount_list':deadacountlist, 'aliveacount_list':aliveacountlist}, safe=False) 
+
+
+
+#------------ここからは練習---------------
+  #データ取得練習
+  def getDataPra(request):
+    if request.method == 'POST': 
+      #Querydictでしか受け取れない。 
+      dic = QueryDict(request.body, encoding='utf-8')
+      click_count_data = dic.get('clickcount_for_next_list')
+      #Json形式に置き換えている。
+      ret = json.dumps({'clickcount_for_next_list': click_count_data})
+      return HttpResponse(ret, content_type='application/json')
+
+#ボタンカウントを画面に表示する練習
+def ajaxPra(request):
+  return render(request, 'ajaxpra.html', {})
+
+
+#データ取得練習
+def getDataPra(request):
+  if request.method == 'POST': 
+    #Querydictでしか受け取れない。 
+    dic = QueryDict(request.body, encoding='utf-8')
+    click_count_data = dic.get('click_count')
+    #Json形式に置き換えている。
+    ret = json.dumps({'click_count': click_count_data})
+    return HttpResponse(ret, content_type='application/json')
+
 
 
 
