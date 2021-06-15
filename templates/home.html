@@ -15,24 +15,6 @@
     </div>
 
     <p class="get_your_follower">@以降のあなたのTwitterIDを入力してください。</p>
-    <input type="text" name="username" placeholder="twitter_id" /><br />
-
-    <button id="submit" type="submit">
-      チェック
-    </button>
-
-  </div>
-</form>
-
-<form id="contact" action="{% url 'deadacount2' %}" method="GET">
- 
-  <div class="container">
-
-    <div class="head">
-      <h2></h2>
-    </div>
-
-    <p class="get_your_follower">@以降のあなたのTwitterIDを入力してください。</p>
     <input type="text" name="screen_name" placeholder="twitter_id" /><br />
 
     <button id="submit" type="submit">
@@ -41,25 +23,4 @@
 
   </div>
 </form>
-
-<!--
-<form id="contact" action="/friends/" method="POST">
-  {% csrf_token %}
-  <div class="container">
-
-    <div class="head">
-      <h2></h2>
-    </div>
-
-    <p class="get_your_follower">@以降のあなたのTwitterIDを入力してください。</p>
-    <input type="text" name="username" placeholder="twitter_id" /><br />
-
-    <button id="submit" type="submit">
-      チェック
-    </button>
-
-  </div>
-
-</form>
--->
 {% endblock content %}

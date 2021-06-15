@@ -2,10 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 import tweepy
 from datetime import datetime, timedelta
-import sys
 from django.http import QueryDict, HttpResponse
 import json
-import numpy 
 
 consumer_key = 'b6iBIHJYu8kEM3RqFISRw4XAW'
 consumer_secret = 'Y7RzFAgmLLKU9KzDzL5OcLjmfHbUI7Alz7drbYk7soJOMySfLt'
@@ -23,89 +21,8 @@ deadacount_definision = 90
 def homeView(request):
   return render(request, 'home.html')
 
-def tweetView(request):
-  #home.htmlで打ち込んだテキスト内容をツイートしたい。
-  if request.method == 'POST':
-    tweet = request.POST['tweet']
-    api.update_status(tweet)
-    context = {
-     'tweet': tweet
-    }
-  return render(request, 'tweet.html', context)
 
-#自分のフォローしているユーザーを列挙する。
-def myfriendsView(request):
-  friends = api.friends()#自分がフォローしているUserオブジェクトをリストで保持している。
-  
-  friends_list = []
-  
-  for friend in friends:
-    friend_name = friend.name #フォローしているユーザー名を1つずつ取得する。
-    friends_list.append(friend_name)#リストにフレンドの名前を1つずつ格納する。 
-
-  context = {
-    'friends_list': friends_list
-   }
-
-  return render(request, 'myfriends.html', context)
-
-#usernameを入力するとそのユーザーをフォローしているユーザーを10人まで列挙する。
-def followersView(request):
-  if request.method == 'POST':
-    print(request.POST)
-    username = request.POST['username']
-    user_info = api.get_user(username)#打ち込んだユーザー名からそのユーザーオブジェクトを取得する。
-    followers = user_info.followers(count=1)
-
-    followers_list = []
-    for follower in followers:
-      follower_name = follower.name
-      followers_list.append(follower_name)
-
-    context = {
-      'followers_list': followers_list
-    }
-  return render(request, 'followers.html', context)
-
-def htmlpraView(request):
-  return render(request, 'htmlpra.html')
-
-# 死んでるアカウントを表示する関数
-def deadacountView(request): 
-  if request.method == 'GET':
-    username = request.GET['username']
-    friends_ids = api.friends_ids(screen_name=username, count=friends_ids_search_count) #クライアントがフォローしているユーザーのidをいくつか取得する。
-    
-    deadacount = []
-    aliveacount = []
-
-    for friend_id in friends_ids: #フォローしているユーザーIDを1つずつ取り出す。
-      #-----------------------------------------(遅い)
-      friend = api.get_user(friend_id) #取り出したUserIDから1つずつUserオブジェクトを探しにいく。
-      #-----------------------------------------（遅い）
-      try:
-        friend_statusObj = api.user_timeline(friend.id, count=1) #フォローしてるUserIDのタイムラインの最新投稿（Statusオブジェクト）を取得。
-      except tweepy.TweepError as e:
-        if e.reason == 'Not authorized.':
-          print('鍵垢の人がいました。')
-      
-      setattr(friend, 'profile_url', 'https://twitter.com/{}'.format(friend.screen_name)) #Userオブジェクトに属性を付与する。
-
-      for friend_status in friend_statusObj:
-        new_tweet_created_at = friend_status.created_at #各々ユーザーの最新投稿の日時を取得している。
-        if datetime.now() - new_tweet_created_at > timedelta(days=deadacount_definision): #最新の投稿が半年間更新されていなかったら。 
-          deadacount.append(friend) #死んでるUserオブジェクトのリスト
-        else:
-          aliveacount.append(friend)
-
-    context = {
-       'deadacount_list': deadacount,
-       'aliveacount_list': aliveacount
-     }
-  return render(request, 'deadacount.html', context)
-
-
-def deadacountView2(request):
+def deadacountView(request):
   if request.method == "GET":
     screen_name = request.GET["screen_name"]
     
@@ -130,7 +47,7 @@ def deadacountView2(request):
       'aliveacount_list': aliveacount
     }
     
-  return render(request, 'deadacount2.html', context)
+  return render(request, 'deadacount.html', context)
 
 #TwitterAPIからscreen_nameの情報をとってくる。
 def getTwitterApiDataView(request):
@@ -188,21 +105,10 @@ def getTwitterApiDataView(request):
 
 
 
-#------------ここからは練習---------------
-  #データ取得練習
-  def getDataPra(request):
-    if request.method == 'POST': 
-      #Querydictでしか受け取れない。 
-      dic = QueryDict(request.body, encoding='utf-8')
-      click_count_data = dic.get('clickcount_for_next_list')
-      #Json形式に置き換えている。
-      ret = json.dumps({'clickcount_for_next_list': click_count_data})
-      return HttpResponse(ret, content_type='application/json')
-
+#------------ここからは練習用---------------
 #ボタンカウントを画面に表示する練習
 def ajaxPra(request):
   return render(request, 'ajaxpra.html', {})
-
 
 #データ取得練習
 def getDataPra(request):
