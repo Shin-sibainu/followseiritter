@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import sys
 from django.http import QueryDict, HttpResponse
 import json
+import numpy 
 
 consumer_key = 'b6iBIHJYu8kEM3RqFISRw4XAW'
 consumer_secret = 'Y7RzFAgmLLKU9KzDzL5OcLjmfHbUI7Alz7drbYk7soJOMySfLt'
@@ -15,9 +16,9 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
-friends_ids_search_count = 10
-friends_ids_search_count_click = 30
-deadacount_definision = 1
+friends_ids_search_count = 100
+friends_ids_search_count_click = 5000
+deadacount_definision = 90
 
 def homeView(request):
   return render(request, 'home.html')
@@ -119,7 +120,7 @@ def deadacountView2(request):
         new_tweet_created = friendObj.status.created_at
         setattr(friendObj, 'profile_url', 'https://twitter.com/{}'.format(friendObj.screen_name))
       except AttributeError as ae:
-        print(ae)
+        pass
       if datetime.now() - new_tweet_created > timedelta(days=deadacount_definision):
         deadacount.append(friendObj)
       else:
@@ -134,40 +135,28 @@ def deadacountView2(request):
 #TwitterAPIからscreen_nameの情報をとってくる。
 def getTwitterApiDataView(request):
   click_count = 0
+  isOverList = False
   #Ajaxで送られてきた変数を受け取る。
   if request.method == 'POST':
     friends_ids_list = []
-    friends_ids_list_10 = []
-    friends_ids_list_20 = []
-    friends_ids_list_30 = []
-
     deadacount = {}
     aliveacount = {}
     deadacountlist = []
     aliveacountlist = []
 
-    friends_ids = api.friends_ids(screen_name='juvenile_1225', count=friends_ids_search_count_click)
-    #id100件毎のリストを作る。
-    for friend_id in friends_ids:
-      if(len(friends_ids_list_10) <= 10):
-        friends_ids_list_10.append(friend_id )
-      if(len(friends_ids_list_10) >= 11 and len(friends_ids_list_20) < 10):
-        friends_ids_list_20.append(friend_id)
-      if(len(friends_ids_list_20) >= 10):
-        friends_ids_list_30.append(friend_id)
-    friends_ids_list.append(friends_ids_list_10)
-    friends_ids_list.append(friends_ids_list_20)
-    friends_ids_list.append(friends_ids_list_30)
-
     dic = QueryDict(request.body, encoding='utf-8')
     click_count = dic.get('clickcount_for_next_list')
-    print(click_count)
+    screen_name = dic.get('screen_name_data')
+    #(Todo)1度で5000件取得するから呼び出すのは最初の1クリックだけで良い。
+    friends_ids = api.friends_ids(screen_name=screen_name, count=friends_ids_search_count_click)
+    #id100件毎のリストを作る。
+    friends_ids_list = [friends_ids[i:i+100] for i in range(0,friends_ids_search_count_click, 100)]
 
-    #print(click_count)
-    friendsObj = api.lookup_users(user_ids=friends_ids_list[int(click_count)]) #最大100まで
+    try:
+      friendsObj = api.lookup_users(user_ids=friends_ids_list[int(click_count)]) #最大100まで
 
-    for friendObj in friendsObj:
-      try:
+      for friendObj in friendsObj:
+        try:
           new_tweet_created = friendObj.status.created_at
           setattr(friendObj, 'profile_url', 'https://twitter.com/{}'.format(friendObj.screen_name))
           if datetime.now() - new_tweet_created > timedelta(days=deadacount_definision):
@@ -188,8 +177,13 @@ def getTwitterApiDataView(request):
               aliveacountlist.append(aliveacount.copy())
             except AttributeError as ae:
               pass
-      except AttributeError as ae:
-          pass
+        except AttributeError as ae:
+            pass
+    except tweepy.error.TweepError as tet:
+      #リストがありませんとHTMLに出力したい。
+      print(tet.response)
+      isOverList = True
+      return JsonResponse({'isOverList': isOverList}, safe=False) 
     return JsonResponse({'deadacount_list':deadacountlist, 'aliveacount_list':aliveacountlist}, safe=False) 
 
 

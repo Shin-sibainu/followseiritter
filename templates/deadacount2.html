@@ -16,7 +16,7 @@
       <h2>息してない</h2>
       {% for deadacount in deadacount_list %}
       {% if deadacount.protected == False %} 
-      <div id="twitter_info_box">
+      <div id="twitter_info_box_dead">
         <img src="{{deadacount.profile_image_url_https}}" id="twitter_img">
         <div class="user_info">
           <p id="username">{{deadacount.name}}</p>
@@ -25,14 +25,14 @@
       </div>
       {% endif %}
       {% endfor %}
-      <div id="new_post"></div>
-      <button class="btn btn-primary" id="load-btn">もっと見る</button>
+      <div id="new_post_dead"></div>
+      <button class="btn btn-primary" id="load-btn-dead">もっと見る</button>
     </div>
 
     <div class="child2">
       <h2>息してる</h2>
       {% for aliveacount in aliveacount_list %}
-      <div id="twitter_info_box">
+      <div id="twitter_info_box_alive">
         <img src="{{aliveacount.profile_image_url_https}}" id="twitter_img">
         <div class="user_info">
         <p id="username">{{aliveacount.name}}</p>
@@ -40,7 +40,9 @@
         </div>
       </div>
       {% endfor %}
-    </div>      
+      <div id="new_post_alive"></div>
+      <button class="btn btn-primary" id="load-btn-alive">もっと見る</button>
     </div>
+    </div>      
 
 {% endblock content %}

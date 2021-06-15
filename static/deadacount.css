@@ -39,7 +39,17 @@ h2 {
   }
 }
 
-#twitter_info_box{
+#twitter_info_box_dead{
+  border: steelblue 1px solid;
+  width: 270px;
+  margin: 0 auto;
+  margin-bottom: 6px;
+  padding: 8px 7px 8px 7px;
+  overflow:hidden;
+  box-shadow: 1.4px 1.4px slategrey;
+}
+
+#twitter_info_box_alive{
   border: steelblue 1px solid;
   width: 270px;
   margin: 0 auto;
