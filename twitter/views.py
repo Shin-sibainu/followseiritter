@@ -68,7 +68,6 @@ def getTwitterApiDataView(request):
     friends_ids = api.friends_ids(screen_name=screen_name, count=friends_ids_search_count_click)
     #id100件毎のリストを作る。
     friends_ids_list = [friends_ids[i:i+100] for i in range(0,friends_ids_search_count_click, 100)]
-
     try:
       friendsObj = api.lookup_users(user_ids=friends_ids_list[int(click_count)]) #最大100まで
 
